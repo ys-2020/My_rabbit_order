@@ -46,12 +46,17 @@ class graph_input(object):
                 tmp = line.rstrip('\n').split()
 
                 # src, dst = int(tmp[0]), int(tmp[1])
-                src, dst, val = int(tmp[0]), int(tmp[1]), int(tmp[2])
+                if len(tmp) == 3:
+                    src, dst, val = int(tmp[0]), int(tmp[1]), int(tmp[2])
 
-                src_li.append(src)
-                dst_li.append(dst)
-                
-                val_li.append(val)
+                    src_li.append(src)
+                    dst_li.append(dst)
+                    
+                    val_li.append(val)
+                elif len(tmp) == 2:
+                    src, dst = int(tmp[0]), int(tmp[1])
+                    src_li.append(src)
+                    dst_li.append(dst)
 
             src_idx = torch.IntTensor(src_li)
             dst_idx = torch.IntTensor(dst_li)
@@ -161,14 +166,19 @@ if __name__ == "__main__":
         graph = graph_input(input_mat)
         val_idx,head,info = graph.load(load_from_txt=True)
         new_edge_idx = graph.reorder()
-
-        out_idx = torch.stack([new_edge_idx[0],new_edge_idx[1], val_idx],dim = 0)
-
+        if len(val_idx) == len(new_edge_idx[0]):
+            out_idx = torch.stack([new_edge_idx[0],new_edge_idx[1], val_idx],dim = 0)
+        else:
+            out_idx = torch.stack([new_edge_idx[0],new_edge_idx[1]], dim = 0)
 
         fout = open(output_mat,'w')
         fout.write(head+info)
-        for i in range(len(out_idx[0])):
-            fout.write(str(int(out_idx[0][i]))+' '+str(int(out_idx[1][i]))+' '+str(int(out_idx[2][i]))+'\n')
+        if len(val_idx) == len(new_edge_idx[0]):
+            for i in range(len(out_idx[0])):
+                fout.write(str(int(out_idx[0][i]))+' '+str(int(out_idx[1][i]))+' '+str(int(out_idx[2][i]))+'\n')
+        else:   
+            for i in range(len(out_idx[0])):
+                fout.write(str(int(out_idx[0][i]))+' '+str(int(out_idx[1][i]))+'\n')
         fout.close()
 
 
