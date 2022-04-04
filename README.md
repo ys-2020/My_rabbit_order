@@ -1,5 +1,7 @@
 # My_rabbit_order
 
-运行run.sh即可
+How to run：
 
-输入输出路径在rabbit_order.py中
+bash run.sh
+
+The input and output path should be given in rabbit_order.py
